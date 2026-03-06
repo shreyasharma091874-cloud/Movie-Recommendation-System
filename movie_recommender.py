@@ -8,14 +8,14 @@ movies = pd.read_csv("movies.csv")
 # Fill missing genres
 movies['genres'] = movies['genres'].fillna('')
 
-# Convert genres into TF-IDF features
+# Convert genres into TF-IDF vectors
 tfidf = TfidfVectorizer(stop_words='english')
 tfidf_matrix = tfidf.fit_transform(movies['genres'])
 
-# Compute similarity matrix
+# Compute cosine similarity
 cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
-# Function to recommend movies
+# Recommendation function
 def recommend(movie_title):
 
     idx = movies[movies['title'] == movie_title].index[0]
@@ -33,5 +33,6 @@ def recommend(movie_title):
 
 movie = input("Enter movie name: ")
 
-print("Recommended Movies:")
+print("\nRecommended Movies:")
+
 print(recommend(movie))
