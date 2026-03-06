@@ -2,20 +2,36 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Sample movie dataset
-data = {
-    "title": ["Batman", "Superman", "Iron Man", "Avengers"],
-    "genre": ["action hero", "action hero", "action technology", "action team"]
-}
+# Load dataset
+movies = pd.read_csv("movies.csv")
 
-df = pd.DataFrame(data)
+# Fill missing genres
+movies['genres'] = movies['genres'].fillna('')
 
-# Convert text to vectors
-tfidf = TfidfVectorizer()
-tfidf_matrix = tfidf.fit_transform(df["genre"])
+# Convert genres into TF-IDF features
+tfidf = TfidfVectorizer(stop_words='english')
+tfidf_matrix = tfidf.fit_transform(movies['genres'])
 
-# Compute similarity
-similarity = cosine_similarity(tfidf_matrix)
+# Compute similarity matrix
+cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
-print("Movie Similarity Matrix:")
-print(similarity)
+# Function to recommend movies
+def recommend(movie_title):
+
+    idx = movies[movies['title'] == movie_title].index[0]
+
+    similarity_scores = list(enumerate(cosine_sim[idx]))
+
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+
+    similarity_scores = similarity_scores[1:6]
+
+    movie_indices = [i[0] for i in similarity_scores]
+
+    return movies['title'].iloc[movie_indices]
+
+
+movie = input("Enter movie name: ")
+
+print("Recommended Movies:")
+print(recommend(movie))
